@@ -50,6 +50,7 @@ NSString *getAppIdentifierFromPath(const char *path) {
 
 NSArray* builtinApps = @[
     @"com.opa334.Dopamine-roothide",
+    @"com.zqbb.Dopamine-roothide"
 ];
 
 bool isBlacklistedApp(const char* identifier)
@@ -71,10 +72,38 @@ bool isBlacklistedApp(const char* identifier)
     return blacklisted.boolValue;
 }
 
+bool isBlacklistedPath_orig(const char* path)
+{
+    // if(!path) return false;
+    NSString* identifier = getAppIdentifierFromPath(path);
+    // if(!identifier) return false;
+    return isBlacklistedApp(identifier.UTF8String);
+}
+
+bool wantInject(const char *execName, const char *jectPath);
+bool isBlacklistedExec(const char *path, const char *jectPath) {
+    const char *exec = strrchr(path, '/');
+    if (!exec) return 1;
+
+    if (!strcmp(exec + 1, "QQ")) {
+        if (isBlacklistedPath_orig(path)) return 1;
+    }
+
+    if (wantInject(exec + 1, jectPath))
+        return 0; // 在白名单则注入
+
+    return 1;
+}
+
 bool isBlacklistedPath(const char* path)
 {
-    if(!path) return false;
-    NSString* identifier = getAppIdentifierFromPath(path);
-    if(!identifier) return false;
-    return isBlacklistedApp(identifier.UTF8String);
+    if(!path) return 0;
+    if (!strcmp(path, "/sbin/launchd")) return 0;
+    if (!strcmp(path, "/usr/libexec/xpcproxy")) return 0;
+    if (strstr(path, "/.jbroot")) return 0;
+
+    const char *jectPath = JBROOT_PATH("/var/mobile/Documents/cn.zqbb.inject.plist");
+    if (access(jectPath, F_OK) == 0)
+        return isBlacklistedExec(path, jectPath);
+    return isBlacklistedPath_orig(path);
 }
