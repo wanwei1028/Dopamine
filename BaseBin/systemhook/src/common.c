@@ -12,6 +12,7 @@
 #include "private.h"
 #include <libjailbreak/jbclient_xpc.h>
 #include <libjailbreak/jbserver_domains.h>
+#include <libjailbreak/jbroot.h>
 
 bool string_has_prefix(const char *str, const char* prefix)
 {
@@ -116,7 +117,7 @@ static kSpawnConfig spawn_config_for_executable(const char* path, char *const ar
 	}
 
 	// White list inject mode
-	const char *jectPath = "/var/mobile/zp.inject.plist";
+	const char *jectPath = JBROOT_PATH("/var/mobile/Documents/cn.zqbb.inject.plist");
 	if (access(jectPath, F_OK) == 0)
 	{
 		// if (access("/var/mobile/.appex", F_OK) == 0 && strstr(path, ".appex/")) return (kSpawnConfigInject | kSpawnConfigTrust);
